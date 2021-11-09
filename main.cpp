@@ -28,28 +28,29 @@ int okreslenieNrIdKontaktu(vector<KsiazkaAdresowa> kontakty)
     fstream plik;
     plik.open("Lista kontaktow.txt", ios::in);
 
-    if(plik.good()==false) idKontaktu=1;
-
     string wierszZPliku;
     char znak = '|';
     int iloscZnakow = 1;
 
-    while(getline(plik, wierszZPliku))
-    {
-        switch(iloscZnakow)
-        {
-        case 1:
-            idKontaktu = atoi(wierszZPliku.c_str()) + 1;
-            break;
-        }
+    if(plik.good()==false) idKontaktu=1;
 
-        iloscZnakow = 1;
+    else
+    {
+        while(getline(plik, wierszZPliku))
+        {
+            switch(iloscZnakow)
+            {
+            case 1:
+                idKontaktu = atoi(wierszZPliku.c_str()) + 1;
+                break;
+            }
+
+            iloscZnakow = 1;
+        }
     }
 
     return idKontaktu;
 }
-
-
 
 void nowyKontakt(vector<KsiazkaAdresowa>& kontakty, int idKontaktu)
 {
@@ -253,7 +254,6 @@ void zapisDoPlikuTymczasowegoZPliku(KsiazkaAdresowa kontakt, int idUzytkownika)
 
     plik.open("Tymczasowy.txt", ios::out | ios::app);
 
-
     plik << kontakt.idKontaktu << "|";
     plik << idUzytkownika << "|";
     plik << kontakt.imie << "|";
@@ -351,7 +351,6 @@ void porownanieListyKontaktow(vector<KsiazkaAdresowa> kontakty, int idAktywnegoU
 
     remove("Lista kontaktow.txt");
     rename("Tymczasowy.txt", "Lista kontaktow.txt" );
-
 }
 
 
@@ -637,7 +636,6 @@ void rejestracjaUzytkownika(vector<Uzytkownik>& uzytkownicy, int idUzytkownika)
         cout << "Podana nazwa uzytkownika juz istnieje" << endl;
         Sleep(1500);
     }
-
 }
 
 void wczytaniePlikuUZytkownikow(vector<Uzytkownik>& uzytkownicy)
@@ -666,7 +664,6 @@ void wczytaniePlikuUZytkownikow(vector<Uzytkownik>& uzytkownicy)
         case 3:
             uzytkownik.haslo = wierszZPliku;
             break;
-
         }
 
         iloscZnakow++;
