@@ -28,6 +28,8 @@ int okreslenieNrIdKontaktu(vector<KsiazkaAdresowa> kontakty)
     fstream plik;
     plik.open("Lista kontaktow.txt", ios::in);
 
+    if(plik.good()==false) idKontaktu=1;
+
     string wierszZPliku;
     char znak = '|';
     int iloscZnakow = 1;
@@ -194,14 +196,12 @@ void szukanieKontaktu(vector<KsiazkaAdresowa> kontakty)
             }
         }
 
-        Sleep(2000);
-
         if(liczbaWynikow==0)
         {
             cout << "Brak osoby o takim imieniu";
-            Sleep(1500);
             break;
         }
+        Sleep(1500);
         break;
 
     case 2:
@@ -218,14 +218,12 @@ void szukanieKontaktu(vector<KsiazkaAdresowa> kontakty)
             }
         }
 
-        Sleep(2000);
-
         if(liczbaWynikow == 0)
         {
             cout << "Brak osoby o takim nazwisku";
-            Sleep(1500);
             break;
         }
+        Sleep(1500);
         break;
     }
 }
@@ -282,7 +280,7 @@ void porownanieListyKontaktow(vector<KsiazkaAdresowa> kontakty, int idAktywnegoU
     string imie, nazwisko, mail, adres;
     int liczbaKontaktow = 0;
 
-    bool zmianaKontaktu;
+    bool zmianaKontaktu = false;
     int liczbaPorzadkowaKontaktu;
 
     KsiazkaAdresowa kontakt;
@@ -310,7 +308,8 @@ void porownanieListyKontaktow(vector<KsiazkaAdresowa> kontakty, int idAktywnegoU
             }
 
             if(zmianaKontaktu==false) kontakt.idKontaktu = atoi(wierszZPliku.c_str());
-            else if (idKontaktu!=idUsuwanegoKontaktu) zapisDoPlikuTymczasowegoZWektora(kontakty, idAktywnegoUzytkownika, liczbaPorzadkowaKontaktu);
+            else if (idKontaktu!=idUsuwanegoKontaktu)
+                zapisDoPlikuTymczasowegoZWektora(kontakty, idAktywnegoUzytkownika, liczbaPorzadkowaKontaktu);
             break;
 
         case 2:
@@ -359,8 +358,8 @@ void porownanieListyKontaktow(vector<KsiazkaAdresowa> kontakty, int idAktywnegoU
 int usuniecieKontaktu(vector<KsiazkaAdresowa>& kontakty)
 {
     string imie, nazwisko, odpowiedz;
-    bool istnienieKontaktu;
-    int idUsuwanegoKontaktu;
+    bool istnienieKontaktu = false;
+    int idUsuwanegoKontaktu = 0;
 
     cout << "Podaj imie kontaktu do usuniecia: ";
     cin >> imie;
@@ -387,19 +386,23 @@ int usuniecieKontaktu(vector<KsiazkaAdresowa>& kontakty)
         }
     }
 
-    if(istnienieKontaktu==false) cout << "Nie ma takiego kontaktu. Powrot do menu glownego";
+    if(istnienieKontaktu==false)
+    {
+        cout << "Nie ma takiej osoby na liscie kontaktowej";
+        idUsuwanegoKontaktu = 0;
+    }
 
     Sleep(1500);
 
     return idUsuwanegoKontaktu;
 }
 
-void edycjaKontaktu(vector<KsiazkaAdresowa>& kontakty)
+bool edycjaKontaktu(vector<KsiazkaAdresowa>& kontakty)
 {
     string imie, nazwisko, odpowiedz;
-    int wybor;
+    char wybor;
     int liczbaPorzadkowaKontaktu;
-    bool istnienieKontaktu;
+    bool istnienieKontaktu = false;
 
 
     cout << "Podaj imie kontaktu do edycji: ";
@@ -420,11 +423,12 @@ void edycjaKontaktu(vector<KsiazkaAdresowa>& kontakty)
     if(istnienieKontaktu==false)
     {
         cout << "Nie ma takiej osoby na liscie kontaktowej" << endl;
-        Sleep(1000);
-        wybor=6;
+        cout << "Powrot do menu glownego" << endl;
+        Sleep(1500);
+        wybor='6';
     }
 
-    while(wybor!=6)
+    while(wybor!='6')
     {
         system("cls");
 
@@ -438,35 +442,52 @@ void edycjaKontaktu(vector<KsiazkaAdresowa>& kontakty)
 
         switch(wybor)
         {
-        case 1:
+        case '1':
             cout << "Podaj nowe imie: ";
             cin >> kontakty[liczbaPorzadkowaKontaktu].imie;
+            cout << "Zapisano zmiane kontaktu";
+            Sleep(1000);
             break;
 
-        case 2:
+        case '2':
             cout << "Podaj nowe nazwisko: ";
             cin >> kontakty[liczbaPorzadkowaKontaktu].nazwisko;
+            cout << "Zapisano zmiane kontaktu";
+            Sleep(1000);
             break;
 
-        case 3:
+        case '3':
             cout << "Podaj nowy numer telefonu: ";
             cin >> kontakty[liczbaPorzadkowaKontaktu].telefon;
+            cout << "Zapisano zmiane kontaktu";
+            Sleep(1000);
             break;
 
-        case 4:
+        case '4':
             cout << "Podaj nowy e-mail: ";
             cin >> kontakty[liczbaPorzadkowaKontaktu].mail;
+            cout << "Zapisano zmiane kontaktu";
+            Sleep(1000);
             break;
 
-        case 5:
+        case '5':
             cout << "Podaj nowy adres: ";
             cin.sync();
             getline(cin, kontakty[liczbaPorzadkowaKontaktu].adres);
+            cout << "Zapisano zmiane kontaktu";
+            Sleep(1000);
             break;
 
-            Sleep(1500);
+        case '6':
+            break;
+
+        default:
+            cout << "Wybierz numer od 1 do 6";
+            Sleep(1000);
         }
     }
+
+    return istnienieKontaktu;
 }
 
 void wykonywaniePolecenNaKsiazceAdresowej(int idUzytkownika)
@@ -476,9 +497,10 @@ void wykonywaniePolecenNaKsiazceAdresowej(int idUzytkownika)
 
     fstream plik;
 
-    int wybor;
+    char wybor;
     int idKontaktu = 0;
     int idUsuwanegoKontaktu = 0;
+    bool aktualizacjaKontaktu;
 
     if(plik.good()) wczytaniePlikuKontaktow(kontakty, idUzytkownika);
 
@@ -498,17 +520,17 @@ void wykonywaniePolecenNaKsiazceAdresowej(int idUzytkownika)
 
         switch(wybor)
         {
-        case 1:
+        case '1':
             idKontaktu = okreslenieNrIdKontaktu(kontakty);
             nowyKontakt(kontakty, idKontaktu);
             zapisDoPlikuKontaktow(kontakty, idUzytkownika);
             break;
 
-        case 2:
+        case '2':
             szukanieKontaktu(kontakty);
             break;
 
-        case 3:
+        case '3':
             for(int i=0; i<kontakty.size(); i++)
             {
                 wyswietlenieListyKontaktow(kontakty, i);
@@ -516,21 +538,26 @@ void wykonywaniePolecenNaKsiazceAdresowej(int idUzytkownika)
             Sleep(3500);
             break;
 
-        case 4:
+        case '4':
             idUsuwanegoKontaktu = usuniecieKontaktu(kontakty);
-            porownanieListyKontaktow(kontakty, idUzytkownika, idUsuwanegoKontaktu);
+            if(idUsuwanegoKontaktu!=0) porownanieListyKontaktow(kontakty, idUzytkownika, idUsuwanegoKontaktu);
             break;
 
-        case 5:
-            edycjaKontaktu(kontakty);
-            porownanieListyKontaktow(kontakty, idUzytkownika, idUsuwanegoKontaktu);
+        case '5':
+            aktualizacjaKontaktu = edycjaKontaktu(kontakty);
+            if(aktualizacjaKontaktu==true) porownanieListyKontaktow(kontakty, idUzytkownika, idUsuwanegoKontaktu);
             break;
 
-        case 6:
+        case '6':
             cout << kontakty.size();
             Sleep(1000);
             break;
 
+        case '7':
+            return;
+
+        default:
+            cout << "Wybierz numer od 1 do 7";
             Sleep(1000);
         }
 
@@ -547,36 +574,23 @@ int okreslenieNrIdUzytkownika(vector<Uzytkownik> uzytkownicy)
     return idUzytkownika;
 }
 
-void rejestracjaUzytkownika(vector<Uzytkownik>& uzytkownicy, int idUzytkownika)
+bool sprawdzenieCzyNazwaUzytkownikaIstnieje(vector<Uzytkownik>& uzytkownicy, int idUzytkownika, Uzytkownik uzytkownik)
 {
-    Uzytkownik uzytkownik;
 
-    cout << "Podaj nazwe uzytkownika: ";
-    cin.sync();
-    getline(cin,uzytkownik.nazwa);
-
+    bool akceptacjaNazwyUzytkownika;
     for(int i=0; i<uzytkownicy.size(); i++)
     {
         if(uzytkownik.nazwa==uzytkownicy[i].nazwa)
         {
-            cout << "Podana nazwa juz istnieje";
+            akceptacjaNazwyUzytkownika = false;
             Sleep(1000);
             break;
         }
 
-        else
-        {
-            cout << "Podaj haslo: ";
-            cin >> uzytkownik.haslo;
-
-            uzytkownik.idUzytkownika = idUzytkownika;
-
-            uzytkownicy.push_back(uzytkownik);
-
-            cout << "Rejestracja zakonczona pomyslnie" << endl;
-            Sleep(1500);
-        }
+        else akceptacjaNazwyUzytkownika = true;
     }
+
+    return akceptacjaNazwyUzytkownika;
 }
 
 void zapisDoPlikuUzytkownika(vector<Uzytkownik> uzytkownicy)
@@ -590,6 +604,40 @@ void zapisDoPlikuUzytkownika(vector<Uzytkownik> uzytkownicy)
     plik << endl;
 
     plik.close();
+}
+
+void rejestracjaUzytkownika(vector<Uzytkownik>& uzytkownicy, int idUzytkownika)
+{
+    Uzytkownik uzytkownik;
+    bool akceptacjaNazwyUzytkownika=false;
+
+    cout << "Podaj nazwe uzytkownika: ";
+    cin.sync();
+    getline(cin,uzytkownik.nazwa);
+
+    cout << "Podaj haslo: ";
+    cin >> uzytkownik.haslo;
+
+    akceptacjaNazwyUzytkownika = sprawdzenieCzyNazwaUzytkownikaIstnieje(uzytkownicy, idUzytkownika, uzytkownik);
+
+    if(uzytkownicy.size()==0 || akceptacjaNazwyUzytkownika==true)
+    {
+        uzytkownik.idUzytkownika = idUzytkownika;
+
+        uzytkownicy.push_back(uzytkownik);
+
+        zapisDoPlikuUzytkownika(uzytkownicy);
+
+        cout << "Rejestracja zakonczona pomyslnie" << endl;
+        Sleep(1500);
+    }
+
+    else
+    {
+        cout << "Podana nazwa uzytkownika juz istnieje" << endl;
+        Sleep(1500);
+    }
+
 }
 
 void wczytaniePlikuUZytkownikow(vector<Uzytkownik>& uzytkownicy)
@@ -673,7 +721,7 @@ int main()
 
     fstream plik;
 
-    int wybor;
+    char wybor;
     int idUzytkownika;
 
     if(plik.good()) wczytaniePlikuUZytkownikow(uzytkownicy);
@@ -688,19 +736,17 @@ int main()
 
         switch(wybor)
         {
-        case 1:
+        case '1':
 
             logowanieUzytkownika(uzytkownicy);
-
             break;
 
-        case 2:
+        case '2':
             idUzytkownika = okreslenieNrIdUzytkownika(uzytkownicy);
             rejestracjaUzytkownika(uzytkownicy, idUzytkownika);
-            zapisDoPlikuUzytkownika(uzytkownicy);
             break;
 
-        case 3:
+        case '3':
             exit(0);
             break;
 
